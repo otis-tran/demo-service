@@ -24,22 +24,24 @@ class MusicPlaybackService : Service() {
     private val CHANNEL_ID = "music_playback_channel"
 
     private var isPlaying = false
+    private var startCount = 0 // Đếm số lần start
 
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
-
-        // Gọi debug function ở đây để kiểm tra khi service được tạo
-        logNotificationStatus()
-
-        Log.d(TAG, "Service created")
+        Log.d(TAG, "🔥 onCreate() called - Service instance created")
     }
 
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        startCount++
         val action = intent?.action
 
-        Log.d(TAG, "onStartCommand called with action: $action")
+        Log.d(TAG, "📞 onStartCommand() called:")
+        Log.d(TAG, "   - Start count: $startCount")
+        Log.d(TAG, "   - Start ID: $startId")
+        Log.d(TAG, "   - Action: $action")
+        Log.d(TAG, "   - Intent: ${intent?.toString()}")
 
         when (action) {
             ACTION_PLAY -> {
@@ -49,17 +51,17 @@ class MusicPlaybackService : Service() {
                 // Debug trước khi start foreground
                 logNotificationStatus()
 
-                startForegroundWithNotification("Playing music")
+                startForegroundWithNotification("Playing music (Start #$startCount)")
             }
 
             ACTION_PAUSE -> {
                 Log.d(TAG, "Pause command received")
                 isPlaying = false
-                updateNotification("Paused")
+                updateNotification("Paused (Start #$startCount)")
             }
 
             ACTION_STOP -> {
-                Log.d(TAG, "Stop command received")
+                Log.d(TAG, "🛑 Stopping service...")
                 isPlaying = false
                 stopForeground(STOP_FOREGROUND_REMOVE)
                 stopSelf()
@@ -81,7 +83,7 @@ class MusicPlaybackService : Service() {
 
                 logNotificationStatus()
 
-                startForegroundWithNotification("Music Player Ready")
+                startForegroundWithNotification("Music Player Ready (Start #$startCount)")
             }
         }
 
@@ -234,7 +236,8 @@ class MusicPlaybackService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.d(TAG, "Service destroyed")
+        Log.d(TAG, "💀 onDestroy() called - Service destroyed")
+        Log.d(TAG, "   - Total starts: $startCount")
     }
 
     override fun onBind(intent: Intent?): IBinder? = null

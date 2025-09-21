@@ -41,6 +41,7 @@ import com.otistran.demo_service.service.MusicPlaybackService
 fun MusicPlayerDemo() {
     val context = LocalContext.current
     var playerState by remember { mutableStateOf("Stopped") }
+    var startCount by remember { mutableStateOf(0) }
     var hasNotificationPermission by remember {
         mutableStateOf(
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -80,6 +81,7 @@ fun MusicPlayerDemo() {
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(text = "Status: $playerState")
+        Text(text = "Start count: $startCount")
 
         if (!hasNotificationPermission) {
             Spacer(modifier = Modifier.height(16.dp))
@@ -108,7 +110,8 @@ fun MusicPlayerDemo() {
         ) {
             Button(
                 onClick = {
-                    playerState = "Playing"
+                    startCount++
+                    playerState = "Playing #$startCount"
                     playMusic(context)
                 },
                 enabled = hasNotificationPermission
