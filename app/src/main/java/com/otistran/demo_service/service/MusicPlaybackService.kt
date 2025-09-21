@@ -16,6 +16,10 @@ import androidx.annotation.RequiresPermission
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class MusicPlaybackService : Service() {
 
@@ -25,6 +29,8 @@ class MusicPlaybackService : Service() {
 
     private var isPlaying = false
     private var startCount = 0 // Đếm số lần start
+
+    private val serviceScope = CoroutineScope(Dispatchers.IO)
 
     override fun onCreate() {
         super.onCreate()
@@ -52,6 +58,8 @@ class MusicPlaybackService : Service() {
                 logNotificationStatus()
 
                 startForegroundWithNotification("Playing music (Start #$startCount)")
+                // Chạy task định kỳ để prove service vẫn sống
+                startPeriodicLogging()
             }
 
             ACTION_PAUSE -> {
@@ -88,6 +96,21 @@ class MusicPlaybackService : Service() {
         }
 
         return START_NOT_STICKY
+    }
+
+    private fun startPeriodicLogging() {
+        serviceScope.launch {
+            while (isPlaying) {
+                Log.d(TAG, "🎵 Service still alive - ${System.currentTimeMillis()}")
+                delay(5000) // Log mỗi 5 giây
+            }
+        }
+    }
+
+    override fun onTaskRemoved(intent: Intent?) {
+        super.onTaskRemoved(intent)
+        Log.d(TAG, "📱 App was removed from recent tasks")
+        // Service vẫn chạy nếu là Foreground Service
     }
 
     private fun startForegroundWithNotification(text: String) {
