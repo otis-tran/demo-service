@@ -56,4 +56,13 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    // Work Manager cơ bản (runtime + ktx)
+    implementation(libs.bundles.work.basic)
+
+    // Hoặc Work Manager đầy đủ
+    // implementation(libs.bundles.work.full)
+
+    // Test helpers
+    androidTestImplementation(libs.androidx.work.testing)
 }
