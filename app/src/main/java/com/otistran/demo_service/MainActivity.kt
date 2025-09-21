@@ -8,7 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
-import com.otistran.demo_service.screen.BackgroundServiceDemo
+import com.otistran.demo_service.screen.MusicPlayerDemo
 import com.otistran.demo_service.ui.theme.DemoserviceTheme
 
 class MainActivity : ComponentActivity() {
@@ -20,7 +20,7 @@ class MainActivity : ComponentActivity() {
             DemoserviceTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Log.d("MainActivity", "onCreate() called with: innerPadding = $innerPadding")
-                    BackgroundServiceDemo()
+                    MusicPlayerDemo()
                 }
             }
         }
