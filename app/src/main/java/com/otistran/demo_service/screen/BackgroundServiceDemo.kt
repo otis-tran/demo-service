@@ -1,8 +1,6 @@
 package com.otistran.demo_service.screen
 
 import android.content.Context
-import android.content.Intent
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -20,7 +18,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.otistran.demo_service.service.DataSyncService
+import androidx.work.*
+import com.otistran.demo_service.service.DataSyncWorker
 
 @Composable
 fun BackgroundServiceDemo() {
@@ -34,7 +33,7 @@ fun BackgroundServiceDemo() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(text = "Background Service Demo")
+        Text(text = "Data Sync Demo - WorkManager instead of Background service")
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -44,9 +43,10 @@ fun BackgroundServiceDemo() {
 
         Button(
             onClick = {
-                Log.d("BackgroundServiceDemo", "BackgroundServiceDemo click start")
                 syncStatus = "Syncing data..."
-                startDataSyncService(context)
+                startDataSyncWork(context) { result ->
+                    syncStatus = if (result) "Sync completed" else "Sync failed"
+                }
             }
         ) {
             Text("Start Data Sync")
@@ -54,7 +54,18 @@ fun BackgroundServiceDemo() {
     }
 }
 
-private fun startDataSyncService(context: Context) {
-    val intent = Intent(context, DataSyncService::class.java)
-    context.startService(intent)
+private fun startDataSyncWork(context: Context, onResult: (Boolean) -> Unit) {
+    val constraints = Constraints.Builder()
+        .setRequiredNetworkType(NetworkType.CONNECTED)
+        .build()
+
+    val syncRequest = OneTimeWorkRequestBuilder<DataSyncWorker>()
+        .setConstraints(constraints)
+        .build()
+
+    val workManager = WorkManager.getInstance(context)
+    workManager.enqueue(syncRequest)
+
+    // Theo dõi kết quả (optional)
+    workManager.getWorkInfoByIdLiveData(syncRequest.id)
 }
